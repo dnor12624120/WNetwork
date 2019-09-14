@@ -2,33 +2,41 @@
 
 #include <WinSock2.h>
 
-#define Family_Unspecified AF_UNSPEC
-#define Family_IPv4 AF_INET
-#define Family_IPX AF_IPX
-#define Family_AppleTalk AF_APPLETALK
-#define Family_NetBIOS AF_NETBIOS
-#define Family_IPv6 AF_INET6
-#define Family_Infrared AF_IRDA
-#define Family_Bluetooth AF_BTH
+namespace WNetwork
+{
+	namespace Types
+	{
+		const int Family_Unspecified = AF_UNSPEC;
+		const int Family_IPv4 = AF_INET;
+		const int Family_IPX = AF_IPX;
+		const int Family_AppleTalk = AF_APPLETALK;
+		const int Family_NetBIOS = AF_NETBIOS;
+		const int Family_IPv6 = AF_INET6;
+		const int Family_Infrared = AF_IRDA;
+		const int Family_Bluetooth = AF_BTH;
 
-#define	SocketType_Stream SOCK_STREAM
-#define SocketType_Datagram SOCK_DGRAM
-#define SocketType_Raw SOCK_RAW
-#define SocketType_ReliableDatagram SOCK_RDM
-#define SocketType_SeqPacket SOCK_SEQPACKET
+		const int SocketType_Stream = SOCK_STREAM;
+		const int SocketType_Datagram = SOCK_DGRAM;
+		const int SocketType_Raw = SOCK_RAW;
+		const int SocketType_ReliableDatagram = SOCK_RDM;
+		const int SocketType_SeqPacket = SOCK_SEQPACKET;
 
-#define Protocol_ICMP IPPROTO_ICMP
-#define Protocol_IGMP IPPROTO_IGMP
-#define Protocol_TCP IPPROTO_TCP
-#define Protocol_UDP IPPROTO_UDP
-#define Protocol_ICMPv6 IPPROTO_ICMPV6	
+		const int Protocol_ICMP = IPPROTO_ICMP;
+		const int Protocol_IGMP = IPPROTO_IGMP;
+		const int Protocol_TCP = IPPROTO_TCP;
+		const int Protocol_UDP = IPPROTO_UDP;
+		const int Protocol_ICMPv6 = IPPROTO_ICMPV6;
 
-typedef int SocketAddressFamily;
-typedef int SocketType;
-typedef int SocketProtocol;
-typedef SOCKET SocketHandle;
-typedef sockaddr_in InSocketAddress;
-typedef in_addr InAddress;
-typedef addrinfo AddressInfo;
-typedef sockaddr SocketAddress;
-typedef timeval TimeVal;
+		using SocketAddressFamily = int;
+		using SocketType = int;
+		using SocketProtocol = int;
+		using SocketHandle = SOCKET;
+		using InSocketAddress = sockaddr_in;
+		using InAddress = in_addr;
+		using AddressInfo = addrinfo;
+		using SocketAddress = sockaddr;
+		using TimeValue = timeval;
+		using WSAData = WSADATA;
+	}
+}
+

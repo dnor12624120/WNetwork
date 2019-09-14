@@ -5,21 +5,24 @@
 #include <exception>
 #include <iostream>
 
+using namespace WNetwork;
+using namespace WNetwork::Types;
+
 Socket::Socket(SocketAddressFamily family, SocketType type, SocketProtocol protocol) :
-	m_family(family),
-	m_type(type),
-	m_protocol(protocol),
-	m_backlog(DEFAUKLT_BACKLOG)
+	m_family{ family },
+	m_type{ type },
+	m_protocol{ protocol },
+	m_backlog{ Socket::DefaultBacklogValue }
 {
 
 }
 
-Socket::Socket(SocketHandle handle, SocketAddressFamily family, SocketType type, SocketProtocol protocol):
-	m_handle(handle),
-	m_family(family),
-	m_type(type),
-	m_protocol(protocol),
-	m_backlog(DEFAUKLT_BACKLOG)
+Socket::Socket(SocketHandle handle, SocketAddressFamily family, SocketType type, SocketProtocol protocol) :
+	m_handle{ handle },
+	m_family{ family },
+	m_type{ type },
+	m_protocol{ protocol },
+	m_backlog{ Socket::DefaultBacklogValue }
 {
 
 }
@@ -55,7 +58,7 @@ void Socket::ToggleNagle(bool on)
 	}
 }
 
-void Socket::Bind(const IPv4Address& address)
+void Socket::Bind(const WNetwork::IPv4Address& address)
 {
 	if (bind(m_handle, (sockaddr*)&address.GetSocketAddress(), sizeof(sockaddr_in)) != 0)
 	{
@@ -73,22 +76,21 @@ void Socket::Listen()
 	}
 }
 
-void Socket::Accept(Socket& recievedSocket, IPv4Address& socketAddress)
+void Socket::Accept(Socket& recievedSocket, WNetwork::IPv4Address& socketAddress)
 {
-	InSocketAddress address = {};
+	InSocketAddress address{};
 	int size = sizeof(InSocketAddress);
 	int handle = accept(m_handle, (SocketAddress*)&address, &size);
-	
 	if (handle == INVALID_SOCKET)
 	{
 		std::string errorCode(std::to_string(WSAGetLastError()));
 		throw WNInvalidOperationException(std::string("Error accepting connection! (" + errorCode + ")").c_str());
 	}
-	socketAddress = IPv4Address((SocketAddress*)&address);
+	socketAddress = WNetwork::IPv4Address((SocketAddress*)&address);
 	recievedSocket = Socket(handle, Family_IPv4, SocketType_Stream, Protocol_TCP);
 }
 
-void Socket::Connect(const IPv4Address& address)
+void Socket::Connect(const WNetwork::IPv4Address& address)
 {
 	int result = connect(m_handle, (SocketAddress*)&address.GetSocketAddress(), sizeof(SocketAddress));
 	if (result != 0)
@@ -98,27 +100,44 @@ void Socket::Connect(const IPv4Address& address)
 	}
 }
 
-void Socket::SendAll(const void* data, int size)
+void Socket::Send(const void* data, int size)
 {
-	int currentSize = 0;
+	int currentSize{ 0 };
 	while (currentSize < size)
 	{
-		int sentBytes = Send((const char*)data + currentSize, size - currentSize);
+		int sentBytes = SendImplementation((const char*)data + currentSize, size - currentSize);
 		currentSize += sentBytes;
 	}
 }
 
-void Socket::RecieveAll(void* data, int size)
+void Socket::Receive(void* data, int size)
 {
-	int currentSize = 0;
+	int currentSize{ 0 };
 	while (currentSize != size)
 	{
-		int recievedBytes = Recieve((char*)data + currentSize, size - currentSize);
-		currentSize += recievedBytes;
+		int receivedBytes = ReceiveImplementation((char*)data + currentSize, size - currentSize);
+		currentSize += receivedBytes;
+		if (currentSize == 0)
+		{
+			throw WNDisconnectException("Client disconnected!\n");
+		}
 	}
 }
 
-int Socket::Send(const void* data, int size)
+void Socket::ReceiveAll(void* data, int& size)
+{
+	int currentSize{ 0 };
+	int receivedBytes{ 0 };
+	do
+	{
+		receivedBytes = ReceiveImplementation((char*)data + currentSize, Socket::DefaultReceiveSize);
+		currentSize += receivedBytes;
+	}
+	while (receivedBytes != 0);
+	size = currentSize;
+}
+
+int Socket::SendImplementation(const void* data, int size)
 {
 	int bytesSent = send(m_handle, (const char*)data, size, 0);
 	if (bytesSent == SOCKET_ERROR)
@@ -129,13 +148,9 @@ int Socket::Send(const void* data, int size)
 	return bytesSent;
 }
 
-int Socket::Recieve(void* data, int size)
+int Socket::ReceiveImplementation(void* data, int size)
 {
 	int bytesSent = recv(m_handle, (char*)data, size, 0);
-	if (bytesSent == 0)
-	{
-		throw WNDisconnectException("Client disconnected!\n");
-	}
 	if (bytesSent == SOCKET_ERROR)
 	{
 		std::string errorCode(std::to_string(WSAGetLastError()));

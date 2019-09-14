@@ -1,27 +1,29 @@
 #include "FileDescriptorSet.h"
 #include "Socket.h"
 
-void FileDescriptorSet::Clear()
+using namespace WNetwork::Types;
+
+void WNetwork::FileDescriptorSet::Clear()
 {
 	FD_ZERO(&m_set);
 }
 
-void FileDescriptorSet::AddSocket(Socket& socket)
+void WNetwork::FileDescriptorSet::AddSocket(Socket& socket)
 {
 	FD_SET(socket.GetHandle(), &m_set);
 }
 
-void FileDescriptorSet::RemoveSocket(Socket& socket)
+void WNetwork::FileDescriptorSet::RemoveSocket(Socket& socket)
 {
 	FD_CLR(socket.GetHandle(), &m_set);
 }
 
-int FileDescriptorSet::Select()
+int WNetwork::FileDescriptorSet::Select()
 {
 	return select(0, &m_set, NULL, NULL, &m_timeout);
 }
 
-void FileDescriptorSet::Cleanup()
+void WNetwork::FileDescriptorSet::Cleanup()
 {
 	while (m_set.fd_count)
 	{
@@ -31,7 +33,7 @@ void FileDescriptorSet::Cleanup()
 	}
 }
 
-void FileDescriptorSet::SetTimeout(int seconds, int miliseconds)
+void WNetwork::FileDescriptorSet::SetTimeout(int seconds, int miliseconds)
 {
 	m_timeout.tv_sec = seconds;
 	m_timeout.tv_usec = miliseconds;

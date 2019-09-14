@@ -1,18 +1,18 @@
 #include "NetworkManager.h"
 #include "Exception.h"
 
-NetworkManager::NetworkManager()
+WNetwork::NetworkManager::NetworkManager()
 {
 
 }
 
-std::shared_ptr<NetworkManager> NetworkManager::GetInstance()
+std::shared_ptr<WNetwork::NetworkManager> WNetwork::NetworkManager::GetInstance()
 {
 	static std::shared_ptr<NetworkManager> manager(new NetworkManager());
 	return manager;
 }
 
-void NetworkManager::Initialize(int version, int subversion)
+void WNetwork::NetworkManager::Initialize(int version, int subversion)
 {
 	if (WSAStartup(MAKEWORD(version, subversion), &m_data) != 0)
 	{
@@ -22,7 +22,7 @@ void NetworkManager::Initialize(int version, int subversion)
 	m_subversion = subversion;
 }
 
-void NetworkManager::Cleanup()
+void WNetwork::NetworkManager::Cleanup()
 {
 	WSACleanup();
 }
