@@ -1,6 +1,5 @@
 # WNetwork
-A C++ wrapper library for winsock functions
-
+A C++ wrapper library for TCP/UDP sockets
 ## 9/14/2019 changes
 - adopted a namespace (`WNetwork`/`Types` for types)
 - renamed `SendAll`/`ReceiveAll` to `Send`/`Receive`
