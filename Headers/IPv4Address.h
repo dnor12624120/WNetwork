@@ -1,31 +1,44 @@
 #pragma once
 
-#include "Types.h"
+#include "SocketAddress.h"
+#include "WinSockException.h"
 
-#include <WinSock2.h>
 #include <string>
 #include <vector>
 
-namespace WNetwork
+#if defined(WIN32) || defined(_WIN32)
+	#define _WINSOCK_DEPRECATED_NO_WARNINGS
+	#include <WS2tcpip.h>
+#elif defined(__linux__)
+  #include <arpa/inet.h>
+#endif
+
+class IPv4Address
 {
-	class IPv4Address
-	{
-		public:
-			IPv4Address() = default;
-			IPv4Address(const std::string& ip, unsigned short port);
-			IPv4Address(WNetwork::Types::SocketAddress* address);
+	public:
+		IPv4Address() = default;
+		IPv4Address(const std::string& IPAddress, short port)
+		{
+			m_address.SetAddress(inet_addr(IPAddress.c_str()));
+			m_address.SetFamily(AF_INET);
+			m_address.SetPort(port);
+		}
 
-			WNetwork::Types::InSocketAddress GetSocketAddress() const;
-			inline const std::string& GetHostname() const { return m_hostname; }
-			inline const std::string& GetIP() const { return m_ip; }
-			inline const std::vector<unsigned char>& GetIPBytes() const { return m_ipBytes; }
-			inline const unsigned char GetPort() const { return m_port; }
-		private:
-			std::string m_hostname;
-			std::string m_ip;
-			std::vector<unsigned char> m_ipBytes;
+		IPv4Address(const SocketAddress& socketAddress) :
+			m_address{ socketAddress }
+		{
 
-			unsigned short m_port;
-			static const int IPStringSize{ 16 };
-	};
-}
+		}
+
+		inline const SocketAddress& GetSocketAddress() const { return m_address; }
+
+		std::string GetAddressString()
+		{
+			std::string stringAddress;
+			inet_ntop(AF_INET, &m_address.GetAddress(), &stringAddress[0], IPv4Address::IPStringSize);
+			return stringAddress;
+		}
+	private:
+		SocketAddress m_address;
+		static const int32_t IPStringSize{ 16 };
+};
