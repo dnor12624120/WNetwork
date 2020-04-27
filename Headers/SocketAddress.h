@@ -1,14 +1,14 @@
 #pragma once
 
 #if defined(WIN32) || defined(_WIN32)
-	#include <WS2tcpip.h>
+    #include <WS2tcpip.h>
 #elif defined(__linux__)
-	#include <netinet/in.h>
-	#define sockaddr_in struct sockaddr_in
+    #include <netinet/in.h>
+    #define sockaddr_in struct sockaddr_in
 #endif
 
 #if defined(SetPort)
-	#undef SetPort
+    #undef SetPort
 #endif
 
 class SocketAddress
@@ -48,13 +48,12 @@ class SocketAddress
 		inline void SetPort(unsigned short port) { m_address.sin_port = port; }
 		inline void SetAddress(unsigned long address)
 		{
-			#if defined(WIN32) || defined(_WIN32)
-				m_address.sin_addr.S_un.S_addr = address;
-			#elif defined(__linux__)
-				m_address.sin_addr.s_addr = address;
-			#endif
+		    #if defined(WIN32) || defined(_WIN32)
+			    m_address.sin_addr.S_un.S_addr = address; 
+	 	    #elif defined(__linux__)
+			    m_address.sin_addr.s_addr = address;
+		    #endif
 		}
 	private:
-		sockaddr_in m_address;
+	    sockaddr_in m_address;
 };
-
